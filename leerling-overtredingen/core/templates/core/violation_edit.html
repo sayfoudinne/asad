@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>Overtreding wijzigen</title>
+</head>
+<body>
+  <h1>Overtreding wijzigen</h1>
+
+  <p>
+    Leerling: <strong>{{ violation.student.first_name }} {{ violation.student.last_name }}</strong><br>
+    Datum/tijd: {{ violation.created_at }}<br>
+    Voorgesteld: {{ violation.proposed_sanction|default:"-" }}
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Opslaan</button>
+  </form>
+
+  <p><a href="{% url 'student_detail' violation.student.id %}">⬅ Terug</a></p>
+</body>
+</html>

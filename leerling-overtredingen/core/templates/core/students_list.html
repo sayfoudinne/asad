@@ -1,0 +1,61 @@
+{% extends "core/base.html" %}
+{% block title %}Leerlingen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Leerlingen</h1>
+  <a class="btn btn-success" href="{% url 'violation_create' %}">+ Overtreding</a>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Klas</label>
+        <select name="klas" class="form-select">
+          <option value="">-- alle klassen --</option>
+          {% for c in classes %}
+            <option value="{{ c.name }}" {% if selected == c.name %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-6 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Filter</button>
+        <a class="btn btn-outline-secondary" href="{% url 'students_list' %}">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Voornaam</th>
+          <th>Achternaam</th>
+          <th>Klas</th>
+          <th class="text-end">Actie</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+          <tr>
+            <td>{{ s.first_name }}</td>
+            <td>{{ s.last_name }}</td>
+            <td><span class="badge text-bg-secondary">{{ s.school_class.name }}</span></td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'student_detail' s.id %}">Details</a>
+              <a class="btn btn-sm btn-primary" href="{% url 'violation_create_for_student' s.id %}">
+                + Overtreding
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="text-muted">Geen leerlingen gevonden.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

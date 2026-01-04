@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% block title %}Nieuwe overtreding{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-header bg-white"><strong>Nieuwe overtreding</strong></div>
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Opslaan</button>
+        <a class="btn btn-outline-secondary" href="{% url 'students_list' %}">Annuleren</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

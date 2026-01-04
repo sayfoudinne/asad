@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+{% block title %}Leerling{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ student.first_name }} {{ student.last_name }}</h1>
+    <div class="text-muted">Klas: <span class="badge text-bg-secondary">{{ student.school_class.name }}</span></div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a class="btn btn-primary" href="{% url 'violation_create_for_student' student.id %}">+ Overtreding</a>
+    <a class="btn btn-outline-secondary" href="{% url 'students_list' %}">Terug</a>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <strong>Overtredingen</strong>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Overtreding</th>
+          <th>Datum/tijd</th>
+          <th>Extra</th>
+          <th>Voorgesteld</th>
+          <th>Definitief</th>
+          <th class="text-end">Acties</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in violations %}
+          <tr>
+            <td><strong>{{ v.violation_type.name }}</strong></td>
+            <td class="text-muted">{{ v.created_at }}</td>
+            <td>{{ v.amount_text|default:"-" }}</td>
+            <td>{{ v.proposed_sanction|default:"-" }}</td>
+            <td>{{ v.final_sanction_text|default:"-" }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'violation_edit' v.id %}">Wijzig</a>
+              <a class="btn btn-sm btn-outline-danger" href="{% url 'violation_delete' v.id %}">Verwijder</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="text-muted">Nog geen overtredingen.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

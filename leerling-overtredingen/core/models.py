@@ -47,30 +47,21 @@ class Sanction(models.Model):
     def __str__(self):
         return self.name
 
-
 class Violation(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="violations")
     violation_type = models.ForeignKey(ViolationType, on_delete=models.PROTECT, related_name="violations")
 
-    created_at = models.DateTimeField(auto_now_add=True)  # datum/tijd van overtreding
-    amount_text = models.CharField(
-        max_length=50,
-        blank=True,
-        help_text="Vrije invulling (bijv. '8 minuten te laat')"
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    amount_text = models.CharField(max_length=50, blank=True)  # bv "8 min te laat"
 
     proposed_sanction = models.ForeignKey(
-        Sanction,
-        null=True, blank=True,
+        Sanction, null=True, blank=True,
         on_delete=models.SET_NULL,
         related_name="proposed_for"
     )
 
-    final_sanction_text = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Docent kan voorgestelde sanctie aanpassen."
-    )
+    final_sanction_text = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
         return f"{self.student} - {self.violation_type} @ {self.created_at:%Y-%m-%d %H:%M}"
