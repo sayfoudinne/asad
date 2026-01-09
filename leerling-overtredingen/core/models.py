@@ -53,7 +53,7 @@ class Violation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    amount_text = models.CharField(max_length=50, blank=True)  # bv "8 min te laat"
+    amount_text = models.CharField(max_length=50, blank=True)
 
     proposed_sanction = models.ForeignKey(
         Sanction, null=True, blank=True,

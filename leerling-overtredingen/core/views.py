@@ -48,17 +48,33 @@ def student_detail(request, student_id: int):
     })
 
 def violation_create(request, student_id=None):
+    classes = SchoolClass.objects.all()
     initial = {}
+    school_class = None
+
+    # klas gekozen via filter (GET) of behouden via hidden field (POST)
+    selected = request.GET.get("klas") or request.POST.get("klas")
+
+    # als we via een specifieke leerling komen, zet die alvast vast
     if student_id is not None:
-        initial["student"] = get_object_or_404(Student, id=student_id)
+        student = get_object_or_404(Student, id=student_id)
+        initial["student"] = student
+        selected = student.school_class.name
+
+    if selected:
+        school_class = SchoolClass.objects.filter(name=selected).first()
 
     if request.method == "POST":
-        form = ViolationForm(request.POST, initial=initial)
+        form = ViolationForm(request.POST, initial=initial, school_class=school_class)
         if form.is_valid():
             violation: Violation = form.save(commit=False)
 
             sev = violation.violation_type.severity
-            possible = Sanction.objects.filter(active=True, min_severity__lte=sev, max_severity__gte=sev)
+            possible = Sanction.objects.filter(
+                active=True,
+                min_severity__lte=sev,
+                max_severity__gte=sev,
+            )
             proposed = random.choice(list(possible)) if possible.exists() else None
 
             violation.proposed_sanction = proposed
@@ -69,9 +85,13 @@ def violation_create(request, student_id=None):
             violation.save()
             return redirect("student_detail", student_id=violation.student.id)
     else:
-        form = ViolationForm(initial=initial)
+        form = ViolationForm(initial=initial, school_class=school_class)
 
-    return render(request, "core/violation_form.html", {"form": form})
+    return render(
+        request,
+        "core/violation_form.html",
+        {"form": form, "classes": classes, "selected": selected},
+    )
 
 from django.contrib import messages
 from .forms import ViolationForm, ViolationEditForm  # voeg ViolationEditForm toe

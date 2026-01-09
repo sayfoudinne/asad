@@ -1,26 +1,26 @@
-<!doctype html>
-<html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <title>Overtreding verwijderen</title>
-</head>
-<body>
-  <h1>Overtreding verwijderen</h1>
+{% extends "core/base.html" %}
+{% block title %}Overtreding verwijderen{% endblock %}
 
-  <p>Weet je zeker dat je deze overtreding wilt verwijderen?</p>
+{% block content %}
+<div class="card shadow-sm border-danger">
+  <div class="card-header bg-white text-danger">
+    <strong>Overtreding verwijderen</strong>
+  </div>
+  <div class="card-body">
+    <p>Weet je zeker dat je deze overtreding wilt verwijderen?</p>
 
-  <ul>
-    <li><strong>{{ violation.student }}</strong></li>
-    <li>{{ violation.violation_type.name }}</li>
-    <li>{{ violation.created_at }}</li>
-    <li>Definitief: {{ violation.final_sanction_text|default:"-" }}</li>
-  </ul>
+    <ul class="list-unstyled mb-3">
+      <li><strong>{{ violation.student }}</strong></li>
+      <li>{{ violation.violation_type.name }}</li>
+      <li>{{ violation.created_at }}</li>
+      <li>Definitieve sanctie: {{ violation.final_sanction_text|default:"-" }}</li>
+    </ul>
 
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Ja, verwijderen</button>
-  </form>
-
-  <p><a href="{% url 'student_detail' violation.student.id %}">Annuleren</a></p>
-</body>
-</html>
+    <form method="post" class="d-flex gap-2">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit">Ja, verwijderen</button>
+      <a class="btn btn-outline-secondary" href="{% url 'student_detail' violation.student.id %}">Annuleren</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

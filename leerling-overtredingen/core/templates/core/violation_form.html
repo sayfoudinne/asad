@@ -2,11 +2,35 @@
 {% block title %}Nieuwe overtreding{% endblock %}
 
 {% block content %}
+<div class="mb-3">
+  <form method="get" class="row g-2 align-items-center">
+    <div class="col-auto">
+      <label for="filterKlas" class="col-form-label">Filter op klas:</label>
+    </div>
+    <div class="col-auto">
+      <select id="filterKlas" name="klas" class="form-select" onchange="this.form.submit()">
+        <option value="">Alle klassen</option>
+        {% for c in classes %}
+          <option value="{{ c.name }}" {% if selected == c.name %}selected{% endif %}>
+            {{ c.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <noscript>
+        <button class="btn btn-outline-secondary" type="submit">Filter</button>
+      </noscript>
+    </div>
+  </form>
+</div>
+
 <div class="card shadow-sm">
   <div class="card-header bg-white"><strong>Nieuwe overtreding</strong></div>
   <div class="card-body">
     <form method="post">
       {% csrf_token %}
+      <input type="hidden" name="klas" value="{{ selected }}">
       {{ form.as_p }}
       <div class="d-flex gap-2">
         <button class="btn btn-primary" type="submit">Opslaan</button>

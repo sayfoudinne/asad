@@ -1,24 +1,26 @@
-<!doctype html>
-<html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <title>Overtreding wijzigen</title>
-</head>
-<body>
-  <h1>Overtreding wijzigen</h1>
+{% extends "core/base.html" %}
+{% block title %}Overtreding wijzigen{% endblock %}
 
-  <p>
-    Leerling: <strong>{{ violation.student.first_name }} {{ violation.student.last_name }}</strong><br>
-    Datum/tijd: {{ violation.created_at }}<br>
-    Voorgesteld: {{ violation.proposed_sanction|default:"-" }}
-  </p>
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <strong>Overtreding wijzigen</strong>
+  </div>
+  <div class="card-body">
+    <div class="mb-3 small text-muted">
+      <div>Leerling: <strong>{{ violation.student.first_name }} {{ violation.student.last_name }}</strong></div>
+      <div>Datum/tijd: {{ violation.created_at }}</div>
+      <div>Voorgestelde sanctie: {{ violation.proposed_sanction|default:"-" }}</div>
+    </div>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Opslaan</button>
-  </form>
-
-  <p><a href="{% url 'student_detail' violation.student.id %}">⬅ Terug</a></p>
-</body>
-</html>
+    <form method="post" class="d-flex flex-column gap-3">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Opslaan</button>
+        <a class="btn btn-outline-secondary" href="{% url 'student_detail' violation.student.id %}">Annuleren</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
