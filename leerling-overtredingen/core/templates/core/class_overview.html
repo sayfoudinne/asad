@@ -1,0 +1,72 @@
+{% extends "core/base.html" %}
+{% block title %}Klasoverzicht{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Klasoverzicht</h1>
+  <p class="text-muted mb-0">Inzicht in gedragspatronen per klas</p>
+</div>
+
+{% if classes_with_stats %}
+  <div class="row g-4">
+    {% for stats in classes_with_stats %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">{{ stats.class.name }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="display-6 text-primary">{{ stats.total_students }}</div>
+                  <small class="text-muted">Leerlingen</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="display-6 {% if stats.total_violations > 0 %}text-danger{% else %}text-success{% endif %}">
+                    {{ stats.total_violations }}
+                  </div>
+                  <small class="text-muted">Overtredingen</small>
+                </div>
+              </div>
+            </div>
+            
+            {% if stats.total_violations > 0 %}
+              <div class="mb-3">
+                <small class="text-muted d-block mb-2">
+                  <strong>{{ stats.students_with_violations }}</strong> leerling(en) met overtredingen
+                </small>
+                {% if stats.violations_by_type %}
+                  <div class="mb-2">
+                    <small class="text-muted d-block mb-1"><strong>Meest voorkomend:</strong></small>
+                    {% for vtype in stats.violations_by_type|slice:":3" %}
+                      <span class="badge bg-secondary me-1">
+                        {{ vtype.violation_type__name }} ({{ vtype.count }})
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="text-center text-muted py-2">
+                <small>Geen overtredingen geregistreerd</small>
+              </div>
+            {% endif %}
+          </div>
+          <div class="card-footer bg-transparent">
+            <a href="{% url 'class_detail' stats.class.id %}" class="btn btn-primary btn-sm w-100">
+              Bekijk details →
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    <p class="mb-0">Er zijn nog geen klassen geregistreerd.</p>
+  </div>
+{% endif %}
+{% endblock %}

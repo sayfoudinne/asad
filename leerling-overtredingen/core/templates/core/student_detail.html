@@ -24,6 +24,7 @@
       <thead class="table-light">
         <tr>
           <th>Overtreding</th>
+          <th>Zwaarte</th>
           <th>Datum/tijd</th>
           <th>Opmerkingen</th>
           <th>Voorgesteld</th>
@@ -35,6 +36,18 @@
         {% for v in violations %}
           <tr>
             <td><strong>{{ v.violation_type.name }}</strong></td>
+            <td>
+              {% with severity=v.get_severity %}
+                {% for i in "12345" %}
+                  <span class="badge {% if forloop.counter <= severity %}bg-danger{% else %}bg-secondary{% endif %}">
+                    {{ forloop.counter }}
+                  </span>
+                {% endfor %}
+                {% if v.severity %}
+                  <small class="text-muted ms-1">(aangepast)</small>
+                {% endif %}
+              {% endwith %}
+            </td>
             <td class="text-muted">{{ v.created_at }}</td>
             <td>{{ v.amount_text|default:"-" }}</td>
             <td>{{ v.proposed_sanction|default:"-" }}</td>
@@ -45,7 +58,7 @@
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="6" class="text-muted">Nog geen overtredingen.</td></tr>
+          <tr><td colspan="7" class="text-muted">Nog geen overtredingen.</td></tr>
         {% endfor %}
       </tbody>
     </table>

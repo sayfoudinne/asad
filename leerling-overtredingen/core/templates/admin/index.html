@@ -1,0 +1,25 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+{{ block.super }}
+
+{% if import_url %}
+<div class="module">
+    <table>
+        <caption>
+            <a href="{{ import_url }}" class="section">Importeren</a>
+        </caption>
+        <tr>
+            <th scope="row">
+                <a href="{{ import_url }}">Studenten importeren vanuit CSV</a>
+            </th>
+            <td>
+                <a href="{{ import_url }}" class="addlink">
+                    Importeren
+                </a>
+            </td>
+        </tr>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

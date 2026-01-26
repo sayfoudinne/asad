@@ -9,6 +9,6 @@ urlpatterns = [
     path("overtreding/nieuw/<int:student_id>/", views.violation_create, name="violation_create_for_student"),
     path("overtreding/<int:violation_id>/wijzig/", views.violation_edit, name="violation_edit"),
     path("overtreding/<int:violation_id>/verwijder/", views.violation_delete, name="violation_delete"),
-    
-
+    path("klassen/", views.class_overview, name="class_overview"),
+    path("klas/<int:class_id>/", views.class_detail, name="class_detail"),
 ]

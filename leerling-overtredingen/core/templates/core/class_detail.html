@@ -1,0 +1,248 @@
+{% extends "core/base.html" %}
+{% block title %}Klas: {{ school_class.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-1">{{ school_class.name }}</h1>
+    <p class="text-muted mb-0">Gedetailleerd overzicht van gedragspatronen</p>
+  </div>
+  <a href="{% url 'class_overview' %}" class="btn btn-outline-secondary">
+    ← Terug naar overzicht
+  </a>
+</div>
+
+<!-- Filter Sectie -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header">
+    <button class="btn btn-link text-decoration-none text-white p-0 w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="{% if has_active_filters %}true{% else %}false{% endif %}" aria-controls="filterCollapse">
+      <h5 class="mb-0 d-flex justify-content-between align-items-center">
+        <span>🔍 Filters</span>
+        {% if has_active_filters %}
+          <span class="badge bg-danger">Actief</span>
+        {% endif %}
+      </h5>
+    </button>
+  </div>
+  <div class="collapse {% if has_active_filters %}show{% endif %}" id="filterCollapse">
+    <div class="card-body">
+      <form method="get" class="row g-3">
+        <div class="col-12 col-md-3">
+          <label for="{{ filter_form.date_from.id_for_label }}" class="form-label">{{ filter_form.date_from.label }}</label>
+          {{ filter_form.date_from }}
+        </div>
+        <div class="col-12 col-md-3">
+          <label for="{{ filter_form.date_to.id_for_label }}" class="form-label">{{ filter_form.date_to.label }}</label>
+          {{ filter_form.date_to }}
+        </div>
+        <div class="col-12 col-md-3">
+          <label for="{{ filter_form.violation_type.id_for_label }}" class="form-label">{{ filter_form.violation_type.label }}</label>
+          {{ filter_form.violation_type }}
+        </div>
+        <div class="col-12 col-md-3">
+          <label for="{{ filter_form.severity.id_for_label }}" class="form-label">{{ filter_form.severity.label }}</label>
+          {{ filter_form.severity }}
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Filter toepassen</button>
+          <a href="{% url 'class_detail' school_class.id %}" class="btn btn-outline-secondary">Reset filters</a>
+          {% if has_active_filters %}
+            <span class="ms-2 text-muted">
+              <small>Filters zijn actief - statistieken worden gefilterd weergegeven</small>
+            </span>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Statistieken Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="display-5 text-primary">{{ total_students }}</div>
+        <small class="text-muted">Totaal leerlingen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="display-5 {% if total_violations > 0 %}text-danger{% else %}text-success{% endif %}">
+          {{ total_violations }}
+        </div>
+        <small class="text-muted">Totaal overtredingen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="display-5 text-warning">{{ students_with_violations }}</div>
+        <small class="text-muted">Leerlingen met overtredingen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="display-5 text-info">{{ avg_violations }}</div>
+        <small class="text-muted">Gemiddeld per leerling</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Overtredingen per type -->
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h5 class="mb-0">Overtredingen per type</h5>
+      </div>
+      <div class="card-body">
+        {% if violations_by_type %}
+          <div class="table-responsive">
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th class="text-center">Zwaarte</th>
+                  <th class="text-end">Aantal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for vtype in violations_by_type %}
+                  <tr>
+                    <td>{{ vtype.violation_type__name }}</td>
+                    <td class="text-center">
+                      {% for i in "12345" %}
+                        <span class="badge {% if forloop.counter <= vtype.violation_type__severity %}bg-danger{% else %}bg-secondary{% endif %}">
+                          {{ forloop.counter }}
+                        </span>
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      <strong>{{ vtype.count }}</strong>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Geen overtredingen geregistreerd.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Top studenten met overtredingen -->
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h5 class="mb-0">Leerlingen met overtredingen</h5>
+      </div>
+      <div class="card-body">
+        {% if students %}
+          <div class="table-responsive">
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Leerling</th>
+                  <th class="text-end">Aantal</th>
+                  <th class="text-end">Actie</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student in students %}
+                  <tr>
+                    <td>
+                      {{ student.first_name }} {{ student.last_name }}
+                      {% if student.violation_count > 0 %}
+                        <span class="badge bg-danger ms-2">{{ student.violation_count }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end">
+                      {% if student.violation_count > 0 %}
+                        <strong class="text-danger">{{ student.violation_count }}</strong>
+                      {% else %}
+                        <span class="text-muted">0</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end">
+                      <a href="{% url 'student_detail' student.id %}" class="btn btn-sm btn-outline-primary">
+                        Details
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Geen leerlingen in deze klas.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recente overtredingen -->
+{% if violations %}
+  <div class="card shadow-sm mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">Recente overtredingen</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Leerling</th>
+              <th>Type</th>
+              <th>Zwaarte</th>
+              <th>Sanctie</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for violation in violations %}
+              <tr>
+                <td>{{ violation.created_at|date:"d-m-Y H:i" }}</td>
+                <td>
+                  <a href="{% url 'student_detail' violation.student.id %}">
+                    {{ violation.student.first_name }} {{ violation.student.last_name }}
+                  </a>
+                </td>
+                <td>{{ violation.violation_type.name }}</td>
+                <td>
+                  {% with severity=violation.get_severity %}
+                    {% for i in "12345" %}
+                      <span class="badge {% if forloop.counter <= severity %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ forloop.counter }}
+                      </span>
+                    {% endfor %}
+                    {% if violation.severity %}
+                      <small class="text-muted ms-1">(aangepast)</small>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+                <td>
+                  {% if violation.final_sanction_text %}
+                    {{ violation.final_sanction_text }}
+                  {% else %}
+                    <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

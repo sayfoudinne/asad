@@ -54,6 +54,12 @@ class Violation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     amount_text = models.CharField(max_length=50, blank=True)
+    
+    severity = models.PositiveSmallIntegerField(
+        null=True, 
+        blank=True,
+        help_text="Zwaarte van deze overtreding (1-5). Laat leeg om de standaard zwaarte van het type te gebruiken."
+    )
 
     proposed_sanction = models.ForeignKey(
         Sanction, null=True, blank=True,
@@ -62,6 +68,10 @@ class Violation(models.Model):
     )
 
     final_sanction_text = models.CharField(max_length=200, blank=True)
+
+    def get_severity(self):
+        """Retourneer de severity van deze violation, of de severity van het type als niet ingesteld"""
+        return self.severity if self.severity is not None else self.violation_type.severity
 
     def __str__(self):
         return f"{self.student} - {self.violation_type} @ {self.created_at:%Y-%m-%d %H:%M}"
