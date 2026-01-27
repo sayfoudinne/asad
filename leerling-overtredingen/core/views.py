@@ -41,10 +41,40 @@ def students_list(request):
 
 def student_detail(request, student_id: int):
     student = get_object_or_404(Student, id=student_id)
-    violations = student.violations.select_related("violation_type", "proposed_sanction").order_by("-created_at")
+    filter_form = ViolationFilterForm(request.GET)
+
+    violations = student.violations.select_related("violation_type", "proposed_sanction")
+    violation_filter = Q()
+    has_active_filters = False
+
+    if filter_form.is_valid():
+        date_from = filter_form.cleaned_data.get("date_from")
+        date_to = filter_form.cleaned_data.get("date_to")
+        violation_type = filter_form.cleaned_data.get("violation_type")
+        severity = filter_form.cleaned_data.get("severity")
+
+        if date_from:
+            violation_filter &= Q(created_at__date__gte=date_from)
+            has_active_filters = True
+        if date_to:
+            violation_filter &= Q(created_at__date__lte=date_to)
+            has_active_filters = True
+        if violation_type:
+            violation_filter &= Q(violation_type=violation_type)
+            has_active_filters = True
+        if severity:
+            violation_filter &= Q(violation_type__severity=int(severity))
+            has_active_filters = True
+
+    if violation_filter:
+        violations = violations.filter(violation_filter)
+    violations = violations.order_by("-created_at")
+
     return render(request, "core/student_detail.html", {
         "student": student,
         "violations": violations,
+        "filter_form": filter_form,
+        "has_active_filters": has_active_filters,
     })
 
 def violation_create(request, student_id=None):
